@@ -73,3 +73,9 @@ export const CardBack = styled.div`
   backface-visibility: hidden;
   transform: rotateY(180deg);
 `;
+export const Timer = styled.div`
+  font-size: 1.2rem;
+  margin-top: 10px;
+  color: #007bff;
+  font-weight: bold;
+`;
