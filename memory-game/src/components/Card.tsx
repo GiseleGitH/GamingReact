@@ -11,9 +11,9 @@ interface CardProps {
 const Card: React.FC<CardProps> = ({ emoji, isFlipped, onClick }) => {
   return (
     <CardContainer onClick={onClick}>
-      <CardInner $flipped={isFlipped}>
-        <CardFront>{isFlipped ? emoji : "?"}</CardFront> 
-        <CardBack />
+      <CardInner $flipped={isFlipped}> 
+        <CardFront>{isFlipped ? emoji : "?"}</CardFront>  
+        <CardBack /> 
       </CardInner>
     </CardContainer>
   );

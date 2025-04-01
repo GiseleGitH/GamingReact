@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+
+
 export const Container = styled.div`
   text-align: center;
   padding: 20px;
@@ -19,6 +21,9 @@ export const ResetButton = styled.button`
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  &:hover {
+    background-color: #0056b3;
+  }
 `;
 
 export const Board = styled.div`
@@ -35,33 +40,30 @@ export const CardContainer = styled.div`
   perspective: 1000px;
 `;
 
-interface CardInnerProps {
-  flipped: boolean;
-}
-
-export const CardInner = styled.div<CardInnerProps>`
+export const CardInner = styled.div<{ flipped: number }>` 
   width: 100%;
   height: 100%;
+  position: relative;
   transform-style: preserve-3d;
   transition: transform 0.5s;
-  transform: ${({ flipped }) => (flipped ? "rotateY(180deg)" : "rotateY(0)")};
+  transform: ${({ flipped }) => (flipped ? "rotateY(180deg)" : "rotateY(0)")}; 
 `;
 
 export const CardFront = styled.div`
-  position: absolute;
+   position: absolute;
   width: 100%;
   height: 100%;
+  backface-visibility: hidden; /* ✅ Cache la face avant lorsqu'elle est retournée */
   background: #4caf50;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2rem;
-  backface-visibility: hidden;
 `;
 
 export const CardBack = styled.div`
-  position: absolute;
+    position: absolute;
   width: 100%;
   height: 100%;
   background: #333;
@@ -71,8 +73,9 @@ export const CardBack = styled.div`
   justify-content: center;
   font-size: 2rem;
   backface-visibility: hidden;
-  transform: rotateY(180deg);
+  transform: rotateY(180deg); /* ✅ La face arrière est retournée par défaut */
 `;
+
 export const Timer = styled.div`
   font-size: 1.2rem;
   margin-top: 10px;

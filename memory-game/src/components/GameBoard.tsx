@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; 
 import Card from "./Card";
 import { Board } from "../styles";
 
@@ -8,33 +8,43 @@ interface GameBoardProps {
   setReset: (value: boolean) => void;
   setRunning: (value: boolean) => void;
   setTime: (value: number) => void;
-  setMoves: (value: number) => void;
+  setMoves: (value: (prev: number) => number) => void;
   playerTurn: number;
   setPlayerTurn: (value: 1 | 2) => void;
   scores: { player1: number; player2: number };
-  setScores: (value: { player1: number; player2: number }) => void;
+  setScores: (value: (prev: { player1: number; player2: number }) => { player1: number; player2: number }) => void;
   difficulty: "easy" | "medium" | "hard";
   playSound: (sound: string) => void;
 }
 
 const emojis = ["🍕", "🍔", "🍟", "🌭", "🍎", "🍉", "🍩", "🍪"];
-//const getCartes = () => [...emojis, ...emojis].sort(() => Math.random() - 0.5);
 
 const getCards = (difficulty: "easy" | "medium" | "hard") => {
   let emojiSet: string[] = [];
-  if (difficulty === "easy") emojiSet = emojis.slice(0, 4); 
-  else if (difficulty === "medium") emojiSet = emojis.slice(0, 6); 
-  else emojiSet = emojis; 
+  if (difficulty === "easy") emojiSet = emojis.slice(0, 4);
+  else if (difficulty === "medium") emojiSet = emojis.slice(0, 6);
+  else emojiSet = emojis;
 
   return [...emojiSet, ...emojiSet].sort(() => Math.random() - 0.5);
 };
 
-const GameBoard: React.FC<GameBoardProps> = ({ reset, setReset, setRunning, setTime, setMoves,playerTurn, setPlayerTurn, scores, setScores,  difficulty, playSound }) => {
+const GameBoard: React.FC<GameBoardProps> = ({
+  reset,
+  setReset,
+  setRunning,
+  setTime,
+  setMoves,
+  playerTurn,
+  setPlayerTurn,
+  scores,
+  setScores,
+  difficulty,
+  playSound,
+}) => {
   const [cards, setCards] = useState<string[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
   const [matched, setMatched] = useState<number[]>([]);
   const [gameOver, setGameOver] = useState<boolean>(false);
-
 
   useEffect(() => {
     setCards(getCards(difficulty));
@@ -50,8 +60,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ reset, setReset, setRunning, setT
       setReset(false);
       setRunning(true);
       setTime(0);
-      setMoves(0);
-      setScores({ player1: 0, player2: 0 });
+      setMoves(() => 0);
+      setScores(() => ({ player1: 0, player2: 0 }));
       setPlayerTurn(1);
       setGameOver(false);
     }
@@ -61,8 +71,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ reset, setReset, setRunning, setT
     if (!gameOver && matched.length === cards.length && cards.length > 0) {
       setGameOver(true);
       playSound("win");
-      const winner = scores.player1 > scores.player2 ? "Joueur 1 🏆" : scores.player1 < scores.player2 ? "Joueur 2 🏆" : "Égalité 🎉";
-      alert(`Félicitation ! ${winner} vous avez gagné !`);
+      const winner =
+        scores.player1 > scores.player2
+          ? "Joueur 1 🏆"
+          : scores.player1 < scores.player2
+          ? "Joueur 2 🏆"
+          : "Égalité 🎉";
+      alert(`Félicitations ! ${winner} a gagné !`);
       setRunning(false);
     }
   }, [matched, cards, setRunning, scores, playSound, gameOver]);
@@ -75,19 +90,27 @@ const GameBoard: React.FC<GameBoardProps> = ({ reset, setReset, setRunning, setT
     setSelected([...selected, index]);
 
     if (selected.length === 1) {
-      //setMoves((prev) => prev + 1);
+      setMoves((prev) => prev + 1);
       const [firstIndex] = selected;
+
       if (cards[firstIndex] === cards[index]) {
         playSound("match");
         setMatched([...matched, firstIndex, index]);
-        setScores((prev) => ({...prev,[playerTurn === 1 ? "player1" : "player2"]: prev[playerTurn === 1 ? "player1" : "player2"] + 1,}));
-        
+
+        setScores((prev) => ({
+          ...prev,
+          [playerTurn === 1 ? "player1" : "player2"]:
+            prev[playerTurn === 1 ? "player1" : "player2"] + 1,
+        }));
+        setSelected([]); // Réinitialise les cartes sélectionnées
       } else {
         playSound("wrong");
         setTimeout(() => {
-        setTimeout(() => setPlayerTurn(playerTurn === 1 ? 2 : 1), 1000);        }
-      );}
-      setTimeout(() => setSelected([]), 1000);
+          setSelected([]); // Retourne les cartes après 1 seconde
+          setPlayerTurn(playerTurn === 1 ? 2 : 1); // Change de joueur
+        }, 1000);
+      }
+     // setTimeout(() => setSelected([]), 1000);
     }
   };
 
