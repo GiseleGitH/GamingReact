@@ -51,7 +51,7 @@ const App: React.FC = () => {
 
   return (
     <Container>
-      <Title>Memory Game</Title>
+      <Title>Détendez-vous</Title>
 
       {/* Sélecteur de difficulté */}
       <select onChange={(e) => setDifficulty(e.target.value as "easy" | "medium" | "hard")} value={difficulty}>

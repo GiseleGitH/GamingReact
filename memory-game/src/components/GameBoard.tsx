@@ -22,9 +22,9 @@ const emojis = ["🍕", "🍔", "🍟", "🌭", "🍎", "🍉", "🍩", "🍪"];
 
 const getCards = (difficulty: "easy" | "medium" | "hard") => {
   let emojiSet: string[] = [];
-  if (difficulty === "easy") emojiSet = emojis.slice(0, 4); // 4 paires
-  else if (difficulty === "medium") emojiSet = emojis.slice(0, 6); // 6 paires
-  else emojiSet = emojis; // 8 paires
+  if (difficulty === "easy") emojiSet = emojis.slice(0, 4); 
+  else if (difficulty === "medium") emojiSet = emojis.slice(0, 6); 
+  else emojiSet = emojis; 
 
   return [...emojiSet, ...emojiSet].sort(() => Math.random() - 0.5);
 };
@@ -33,8 +33,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ reset, setReset, setRunning, setT
   const [cards, setCards] = useState<string[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
   const [matched, setMatched] = useState<number[]>([]);
+  const [gameOver, setGameOver] = useState<boolean>(false);
 
-  // Initialisation des cartes en fonction de la difficulté
+
   useEffect(() => {
     setCards(getCards(difficulty));
     setRunning(true);
@@ -52,18 +53,19 @@ const GameBoard: React.FC<GameBoardProps> = ({ reset, setReset, setRunning, setT
       setMoves(0);
       setScores({ player1: 0, player2: 0 });
       setPlayerTurn(1);
+      setGameOver(false);
     }
   }, [reset, difficulty, setReset, setRunning, setTime, setMoves, setScores, setPlayerTurn]);
 
-  // Vérification de la fin du jeu
   useEffect(() => {
-    if (matched.length === cards.length && cards.length > 0) {
+    if (!gameOver && matched.length === cards.length && cards.length > 0) {
+      setGameOver(true);
       playSound("win");
+      const winner = scores.player1 > scores.player2 ? "Joueur 1 🏆" : scores.player1 < scores.player2 ? "Joueur 2 🏆" : "Égalité 🎉";
+      alert(`Félicitation ! ${winner} vous avez gagné !`);
       setRunning(false);
-      const winner = playerTurn === 1 ? "Joueur 1" : "Joueur 2";
-      alert(`Félicitations ${winner}, vous avez gagné !`);
     }
-  }, [matched, cards, setRunning,scores, playSound]);
+  }, [matched, cards, setRunning, scores, playSound, gameOver]);
 
   // Fonction pour gérer le clic sur une carte
   const handleCardClick = (index: number) => {
@@ -78,7 +80,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ reset, setReset, setRunning, setT
       if (cards[firstIndex] === cards[index]) {
         playSound("match");
         setMatched([...matched, firstIndex, index]);
-        //setScores((prev) => ({...prev,[`player${playerTurn}`]: prev[`player${playerTurn}`] + 1,}));
+        setScores((prev) => ({...prev,[playerTurn === 1 ? "player1" : "player2"]: prev[playerTurn === 1 ? "player1" : "player2"] + 1,}));
+        
       } else {
         playSound("wrong");
         setTimeout(() => {
@@ -94,7 +97,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ reset, setReset, setRunning, setT
         <Card
           key={index}
           emoji={emoji}
-          //index={index}
+          index={index}
           isFlipped={selected.includes(index) || matched.includes(index)}
           onClick={() => handleCardClick(index)}
         />
